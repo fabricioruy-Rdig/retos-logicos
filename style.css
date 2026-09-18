@@ -1,0 +1,331 @@
+/* ============================================================
+   PROYECTO 1 - LISTA DE TAREAS
+   Hoja de estilos - Tema oscuro moderno
+   ============================================================ */
+
+/* --- VARIABLES DE COLOR ---------------------------------
+   Se definen una sola vez y se reutilizan en todo el archivo.
+   Si querés cambiar el color de la app, cambiás solo acá. */
+:root {
+  --fondo:        #0e1116;
+  --superficie:   #171b22;
+  --superficie-2: #1e232c;
+  --borde:        #2a303b;
+  --texto:        #e6e9ef;
+  --texto-suave:  #8b93a1;
+  --acento:       #4f8cff;
+  --acento-suave: rgba(79, 140, 255, 0.12);
+  --exito:        #35d399;
+  --peligro:      #ff5f6d;
+  --radio:        14px;
+  --transicion:   180ms cubic-bezier(.4, 0, .2, 1);
+}
+
+/* --- RESET BASICO ---------------------------------------
+   Quita los margenes que el navegador pone por defecto
+   y hace que el padding no agrande los elementos. */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* El espacio de arriba deja lugar al enlace de la guia */
+  padding: 64px 16px 32px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--texto);
+  background: var(--fondo);
+  /* Dos resplandores de color muy suaves de fondo */
+  background-image:
+    radial-gradient(700px 400px at 15% -10%, rgba(79,140,255,.16), transparent 60%),
+    radial-gradient(600px 400px at 90% 110%, rgba(53,211,153,.10), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* --- ENLACE A LA GUIA ----------------------------------- */
+.guia {
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px;
+  font-size: .82rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--texto);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .28);
+  transition: border-color var(--transicion), transform var(--transicion);
+}
+
+.guia:hover {
+  border-color: var(--acento);
+  transform: translateY(-1px);
+}
+
+.guia svg { color: var(--acento); }
+
+/* --- CONTENEDOR PRINCIPAL ------------------------------- */
+.app {
+  width: 100%;
+  max-width: 520px;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
+}
+
+/* --- ENCABEZADO ----------------------------------------- */
+.app__header { margin-bottom: 22px; }
+
+.app__titulo {
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.app__fecha {
+  margin-top: 4px;
+  font-size: .875rem;
+  color: var(--texto-suave);
+}
+
+/* Solo la primera letra en mayuscula: "Viernes, 14 de agosto" */
+.app__fecha::first-letter { text-transform: uppercase; }
+
+/* --- FORMULARIO ----------------------------------------- */
+.formulario {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.formulario__input {
+  flex: 1;                       /* ocupa todo el espacio libre */
+  padding: 13px 16px;
+  font-size: .95rem;
+  font-family: inherit;
+  color: var(--texto);
+  background: var(--superficie-2);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  outline: none;
+  transition: border-color var(--transicion), box-shadow var(--transicion);
+}
+
+.formulario__input::placeholder { color: var(--texto-suave); }
+
+.formulario__input:focus {
+  border-color: var(--acento);
+  box-shadow: 0 0 0 3px var(--acento-suave);
+}
+
+.formulario__boton {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  color: #fff;
+  background: var(--acento);
+  border: none;
+  border-radius: var(--radio);
+  cursor: pointer;
+  transition: transform var(--transicion), filter var(--transicion);
+}
+
+.formulario__boton:hover  { filter: brightness(1.12); }
+.formulario__boton:active { transform: scale(.94); }
+
+/* --- FILTROS -------------------------------------------- */
+.filtros {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  margin-bottom: 14px;
+  background: var(--superficie-2);
+  border-radius: 12px;
+}
+
+.filtros__boton {
+  flex: 1;
+  padding: 8px 10px;
+  font-size: .82rem;
+  font-family: inherit;
+  font-weight: 500;
+  color: var(--texto-suave);
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all var(--transicion);
+}
+
+.filtros__boton:hover { color: var(--texto); }
+
+.filtros__boton--activo {
+  color: var(--texto);
+  background: var(--superficie);
+  box-shadow: 0 1px 3px rgba(0,0,0,.35);
+}
+
+/* --- LISTA DE TAREAS ------------------------------------ */
+.lista { list-style: none; }
+
+.tarea {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  background: var(--superficie-2);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  animation: aparecer 220ms ease both;
+}
+
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Circulito para marcar como completada */
+.tarea__check {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  color: transparent;
+  background: transparent;
+  border: 2px solid var(--texto-suave);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all var(--transicion);
+}
+
+.tarea__check:hover { border-color: var(--exito); }
+
+.tarea--hecha .tarea__check {
+  color: #0e1116;
+  background: var(--exito);
+  border-color: var(--exito);
+}
+
+.tarea__texto {
+  flex: 1;
+  font-size: .95rem;
+  line-height: 1.4;
+  word-break: break-word;
+  transition: all var(--transicion);
+}
+
+.tarea--hecha .tarea__texto {
+  color: var(--texto-suave);
+  text-decoration: line-through;
+}
+
+.tarea__borrar {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  color: var(--texto-suave);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  opacity: 0;                    /* invisible hasta pasar el mouse */
+  transition: all var(--transicion);
+}
+
+.tarea:hover .tarea__borrar { opacity: 1; }
+
+.tarea__borrar:hover {
+  color: var(--peligro);
+  background: rgba(255, 95, 109, .12);
+}
+
+/* En pantallas tactiles el boton siempre se ve */
+@media (hover: none) {
+  .tarea__borrar { opacity: 1; }
+}
+
+/* --- ESTADO VACIO --------------------------------------- */
+.vacio {
+  display: none;                 /* JavaScript lo muestra cuando hace falta */
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 38px 20px;
+  color: var(--texto-suave);
+  text-align: center;
+  font-size: .9rem;
+}
+
+.vacio--visible { display: flex; }
+
+/* --- PIE ------------------------------------------------ */
+.pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--borde);
+  font-size: .82rem;
+  color: var(--texto-suave);
+}
+
+.pie__limpiar {
+  font-size: .82rem;
+  font-family: inherit;
+  color: var(--texto-suave);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color var(--transicion);
+}
+
+.pie__limpiar:hover { color: var(--peligro); }
+
+/* --- AVISO EMERGENTE (TOAST) ---------------------------- */
+.aviso {
+  position: fixed;
+  bottom: 26px;
+  left: 50%;
+  padding: 11px 20px;
+  font-size: .87rem;
+  color: var(--texto);
+  background: var(--superficie-2);
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.5);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 14px);
+  transition: opacity var(--transicion), transform var(--transicion);
+}
+
+.aviso--visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* --- CELULARES ------------------------------------------ */
+@media (max-width: 480px) {
+  .app { padding: 22px 18px; border-radius: 16px; }
+  .app__titulo { font-size: 1.45rem; }
+  .guia { top: 12px; left: 12px; padding: 8px 13px; font-size: .78rem; }
+}

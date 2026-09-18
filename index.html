@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  PROYECTO 1 - LISTA DE TAREAS (TO-DO LIST)
+  5 Mini-Proyectos de JavaScript - Codigo Listo + Explicado
+  ============================================================
+  Este archivo define la ESTRUCTURA de la pagina.
+  El diseno esta en style.css y la logica en script.js
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Tareas | Mini-Proyectos JS</title>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- EXTRA: panel para probar los colores. Se puede borrar sin romper nada. -->
+  <link rel="stylesheet" href="personalizar.css">
+</head>
+<body>
+
+  <!-- ENLACE A LA GUIA EXPLICADA -->
+  <a class="guia" href="explicacion.html">
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none"
+         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+    </svg>
+    Cómo está hecho
+  </a>
+
+  <main class="app">
+
+    <!-- ENCABEZADO -->
+    <header class="app__header">
+      <h1 class="app__titulo">Mis Tareas</h1>
+      <p class="app__fecha" id="fecha"></p>
+    </header>
+
+    <!-- FORMULARIO PARA AGREGAR TAREAS -->
+    <form class="formulario" id="formulario">
+      <input
+        type="text"
+        id="entrada"
+        class="formulario__input"
+        placeholder="¿Qué tenés que hacer hoy?"
+        autocomplete="off"
+        maxlength="120">
+      <button type="submit" class="formulario__boton" aria-label="Agregar tarea">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+      </button>
+    </form>
+
+    <!-- FILTROS -->
+    <nav class="filtros" id="filtros">
+      <button class="filtros__boton filtros__boton--activo" data-filtro="todas">Todas</button>
+      <button class="filtros__boton" data-filtro="pendientes">Pendientes</button>
+      <button class="filtros__boton" data-filtro="completadas">Completadas</button>
+    </nav>
+
+    <!-- AQUI SE DIBUJAN LAS TAREAS DESDE JAVASCRIPT -->
+    <ul class="lista" id="lista"></ul>
+
+    <!-- MENSAJE CUANDO NO HAY TAREAS -->
+    <div class="vacio" id="vacio">
+      <svg viewBox="0 0 24 24" width="42" height="42" fill="none"
+           stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 11l3 3L22 4"/>
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+      </svg>
+      <p id="vacio-texto">Todavía no hay tareas. ¡Agregá la primera!</p>
+    </div>
+
+    <!-- PIE: CONTADOR Y BOTON DE LIMPIAR -->
+    <footer class="pie">
+      <span class="pie__contador" id="contador">0 tareas pendientes</span>
+      <button class="pie__limpiar" id="limpiar">Borrar completadas</button>
+    </footer>
+
+  </main>
+
+  <!-- AVISO EMERGENTE (TOAST) -->
+  <div class="aviso" id="aviso"></div>
+
+  <script src="script.js"></script>
+
+  <!-- EXTRA: panel para probar los colores. Se puede borrar sin romper nada. -->
+  <script src="personalizar.js"></script>
+</body>
+</html>

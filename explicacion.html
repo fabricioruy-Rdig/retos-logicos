@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Explicación línea por línea | Lista de Tareas</title>
+<style>
+:root{
+  --fondo:#0e1116; --superficie:#171b22; --superficie-2:#1e232c; --codigo:#0b0e13;
+  --borde:#2a303b; --texto:#e6e9ef; --texto-suave:#8b93a1; --acento:#4f8cff;
+  --exito:#35d399; --naranja:#ffb454; --rosa:#ff7b9c; --violeta:#c39dff;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color:var(--texto);background:var(--fondo);line-height:1.65;
+}
+
+/* ---------- LAYOUT ---------- */
+.envoltorio{display:grid;grid-template-columns:262px minmax(0,1fr);max-width:1360px;margin:0 auto}
+.envoltorio > *{min-width:0}
+
+.menu{
+  position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;
+  padding:28px 18px;border-right:1px solid var(--borde);background:var(--superficie);
+}
+.menu__marca{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--acento);font-weight:700;margin-bottom:4px}
+.menu__titulo{font-size:1.05rem;font-weight:700;margin-bottom:20px;line-height:1.3}
+.menu a{
+  display:block;padding:7px 11px;margin-bottom:2px;border-radius:8px;
+  font-size:.855rem;color:var(--texto-suave);text-decoration:none;
+  border-left:2px solid transparent;transition:all .16s
+}
+.menu a:hover{color:var(--texto);background:var(--superficie-2)}
+.menu a.activo{color:var(--texto);background:var(--superficie-2);border-left-color:var(--acento)}
+.menu__grupo{margin:16px 0 6px;padding:0 11px;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:#5c6472;font-weight:700}
+
+.contenido{padding:46px 46px 120px;max-width:900px;min-width:0}
+
+/* ---------- TIPOGRAFIA ---------- */
+h1{font-size:2.15rem;font-weight:800;letter-spacing:-.025em;margin-bottom:10px;line-height:1.18}
+h2{
+  font-size:1.42rem;font-weight:700;letter-spacing:-.02em;
+  margin:56px 0 14px;padding-top:22px;border-top:1px solid var(--borde)
+}
+h2:first-of-type{border-top:none;padding-top:0}
+h3{font-size:1.03rem;font-weight:650;margin:32px 0 10px;color:#fff}
+p{margin-bottom:13px;color:#c4cad4}
+p.entradilla{font-size:1.06rem;color:var(--texto-suave);margin-bottom:26px}
+ul,ol{margin:0 0 15px 21px;color:#c4cad4}
+li{margin-bottom:6px}
+strong{color:#fff;font-weight:650}
+a{color:var(--acento)}
+
+code.en-linea{
+  padding:1px 6px;border-radius:5px;font-size:.855em;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color:var(--violeta);background:rgba(195,157,255,.11)
+}
+
+/* ---------- CODIGO ---------- */
+.codigo{
+  position:relative;margin:16px 0;border:1px solid var(--borde);
+  border-radius:12px;background:var(--codigo);overflow:hidden
+}
+.codigo__barra{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 14px;border-bottom:1px solid var(--borde);background:var(--superficie)
+}
+.codigo__archivo{font-size:.75rem;color:var(--texto-suave);font-family:ui-monospace,Menlo,monospace}
+.codigo__copiar{
+  font-size:.72rem;font-family:inherit;color:var(--texto-suave);background:transparent;
+  border:1px solid var(--borde);border-radius:6px;padding:3px 9px;cursor:pointer;transition:all .16s
+}
+.codigo__copiar:hover{color:var(--texto);border-color:var(--acento)}
+pre{
+  margin:0;padding:15px 16px;overflow-x:auto;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:.815rem;line-height:1.72;tab-size:2
+}
+/* colores del resaltado */
+.t-com{color:#5d6675;font-style:italic}
+.t-str{color:#a8e06a}
+.t-pal{color:#ff7b9c}
+.t-num{color:var(--naranja)}
+.t-glo{color:var(--violeta)}
+.t-fun{color:#67c9ff}
+.t-tag{color:#ff7b9c}
+.t-atr{color:var(--naranja)}
+.t-sel{color:#67c9ff}
+.t-pro{color:var(--violeta)}
+
+/* ---------- EXPLICACION POR LINEA ---------- */
+.lineas{list-style:none;margin:14px 0 22px;padding:0}
+.lineas li{
+  display:grid;grid-template-columns:auto 1fr;gap:13px;
+  padding:9px 0;border-bottom:1px dashed rgba(42,48,59,.85);margin:0
+}
+.lineas li:last-child{border-bottom:none}
+.lineas code{
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.78rem;
+  color:var(--exito);background:rgba(53,211,153,.09);
+  padding:2px 7px;border-radius:5px;white-space:nowrap;align-self:start;
+  max-width:290px;overflow:hidden;text-overflow:ellipsis
+}
+.lineas span{font-size:.905rem;color:#c4cad4}
+
+/* ---------- CAJAS ---------- */
+.caja{
+  margin:18px 0;padding:14px 17px;border-radius:11px;
+  border-left:3px solid var(--acento);background:rgba(79,140,255,.07);font-size:.915rem
+}
+.caja--tip{border-left-color:var(--exito);background:rgba(53,211,153,.07)}
+.caja--ojo{border-left-color:var(--naranja);background:rgba(255,180,84,.07)}
+.caja__titulo{font-weight:700;color:#fff;margin-bottom:5px;font-size:.855rem;letter-spacing:.01em}
+.caja p:last-child{margin-bottom:0}
+
+/* ---------- OTROS ---------- */
+.pasos{counter-reset:paso;list-style:none;margin-left:0}
+.pasos li{
+  counter-increment:paso;position:relative;padding-left:38px;margin-bottom:12px
+}
+.pasos li::before{
+  content:counter(paso);position:absolute;left:0;top:1px;
+  display:grid;place-items:center;width:25px;height:25px;border-radius:50%;
+  background:var(--acento);color:#fff;font-size:.76rem;font-weight:700
+}
+/* ---------- CUESTIONARIO ---------- */
+.quiz{margin:22px 0}
+.quiz__barra{
+  display:flex;align-items:center;gap:15px;flex-wrap:wrap;
+  padding:14px 17px;margin-bottom:16px;
+  border:1px solid var(--borde);border-radius:12px;background:var(--superficie)
+}
+.quiz__marcador{font-size:.85rem;color:var(--texto-suave);font-variant-numeric:tabular-nums}
+.quiz__marcador b{color:#fff}
+.quiz__progreso{
+  flex:1;min-width:130px;height:7px;border-radius:99px;
+  background:var(--superficie-2);overflow:hidden
+}
+.quiz__progreso i{
+  display:block;height:100%;width:0;border-radius:99px;
+  background:linear-gradient(90deg,var(--acento),var(--exito));transition:width .4s ease
+}
+.quiz__reiniciar{
+  padding:7px 14px;font-family:inherit;font-size:.78rem;font-weight:600;
+  color:var(--texto-suave);background:var(--superficie-2);
+  border:1px solid var(--borde);border-radius:8px;cursor:pointer;transition:all .16s
+}
+.quiz__reiniciar:hover{color:#fff;border-color:var(--peligro)}
+
+.p{
+  margin-bottom:13px;padding:17px 19px;
+  border:1px solid var(--borde);border-radius:13px;background:var(--superficie);
+  transition:border-color .2s
+}
+.p--bien{border-color:rgba(53,211,153,.4)}
+.p--mal{border-color:rgba(255,95,109,.4)}
+
+.p__cabecera{display:flex;align-items:center;gap:9px;margin-bottom:11px}
+.p__num{
+  display:grid;place-items:center;width:24px;height:24px;flex-shrink:0;
+  border-radius:50%;font-size:.74rem;font-weight:700;
+  color:var(--texto-suave);background:var(--superficie-2);border:1px solid var(--borde)
+}
+.p--bien .p__num{color:#0e1116;background:var(--exito);border-color:var(--exito)}
+.p--mal  .p__num{color:#fff;background:var(--peligro);border-color:var(--peligro)}
+.p__tipo{
+  padding:2px 9px;border-radius:99px;border:1px solid var(--borde);
+  font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--texto-suave)
+}
+.p__texto{margin-bottom:13px;font-size:.95rem;line-height:1.6;color:#e2e6ee}
+.p__texto code{
+  padding:1px 6px;border-radius:5px;font-family:ui-monospace,Menlo,Consolas,monospace;
+  font-size:.86em;color:var(--violeta);background:rgba(195,157,255,.11)
+}
+
+/* --- opciones y verdadero/falso --- */
+.op{display:flex;flex-direction:column;gap:7px}
+.vf{display:flex;gap:9px}
+.vf .op__btn{flex:1;justify-content:center}
+.op__btn{
+  display:flex;align-items:center;gap:11px;width:100%;padding:11px 14px;
+  font-family:inherit;font-size:.9rem;text-align:left;color:#c4cad4;
+  background:var(--superficie-2);border:1px solid var(--borde);border-radius:10px;
+  cursor:pointer;transition:all .16s
+}
+.op__btn:hover:not(:disabled){color:#fff;border-color:var(--acento)}
+.op__btn:disabled{cursor:default;opacity:.75}
+.op__btn .letra{
+  display:grid;place-items:center;width:21px;height:21px;flex-shrink:0;
+  border-radius:6px;font-size:.7rem;font-weight:700;
+  color:var(--texto-suave);background:var(--codigo);border:1px solid var(--borde)
+}
+.op__btn code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.86em;color:var(--violeta)}
+.op__btn--bien{
+  color:#fff;background:rgba(53,211,153,.13);border-color:var(--exito);opacity:1
+}
+.op__btn--bien .letra{color:#0e1116;background:var(--exito);border-color:var(--exito)}
+.op__btn--mal{color:#fff;background:rgba(255,95,109,.12);border-color:var(--peligro);opacity:1}
+.op__btn--mal .letra{color:#fff;background:var(--peligro);border-color:var(--peligro)}
+
+/* --- escribir la respuesta --- */
+.esc{display:flex;gap:9px;flex-wrap:wrap}
+.esc input{
+  flex:1;min-width:165px;padding:11px 14px;
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.87rem;
+  color:var(--texto);background:var(--codigo);
+  border:1px solid var(--borde);border-radius:10px;outline:none;transition:border-color .16s
+}
+.esc input::placeholder{color:#5c6472}
+.esc input:focus{border-color:var(--acento)}
+.esc input:disabled{opacity:.8}
+
+/* --- ordenar pasos --- */
+.ord{display:flex;flex-direction:column;gap:7px}
+.ord .letra{font-variant-numeric:tabular-nums}
+
+/* --- resultado y botones --- */
+.p__resultado{
+  margin-top:13px;padding:12px 15px;border-radius:10px;
+  font-size:.88rem;line-height:1.62
+}
+.p__resultado b{color:#fff}
+.p__resultado code{
+  padding:1px 5px;border-radius:4px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em
+}
+.p__resultado--bien{
+  color:#b9f0d9;background:rgba(53,211,153,.09);border-left:3px solid var(--exito)
+}
+.p__resultado--bien code{color:#d8fded;background:rgba(53,211,153,.16)}
+.p__resultado--mal{
+  color:#ffc6cc;background:rgba(255,95,109,.09);border-left:3px solid var(--peligro)
+}
+.p__resultado--mal code{color:#ffe0e3;background:rgba(255,95,109,.16)}
+
+.p__acciones{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.p__btn{
+  display:flex;align-items:center;gap:7px;padding:8px 15px;
+  font-family:inherit;font-size:.8rem;font-weight:600;color:var(--texto);
+  background:var(--superficie-2);border:1px solid var(--borde);border-radius:9px;
+  cursor:pointer;transition:all .16s
+}
+.p__btn:hover{color:#fff;border-color:var(--acento)}
+.p__btn--principal{color:#fff;background:var(--acento);border-color:var(--acento)}
+.p__btn--principal:hover{filter:brightness(1.12)}
+.volver{
+  display:inline-block;margin-bottom:26px;padding:7px 15px;font-size:.83rem;
+  color:var(--texto-suave);text-decoration:none;border:1px solid var(--borde);border-radius:9px
+}
+.volver:hover{color:var(--texto);border-color:var(--acento)}
+
+@media(max-width:900px){
+  .envoltorio{grid-template-columns:minmax(0,1fr)}
+  .menu{position:static;height:auto;border-right:none;border-bottom:1px solid var(--borde)}
+  .contenido{padding:30px 20px 80px}
+  h1{font-size:1.7rem}
+  .lineas li{grid-template-columns:1fr;gap:5px}
+  .lineas code{max-width:100%;white-space:normal;word-break:break-word}
+}
+</style>
+</head>
+<body>
+<div class="envoltorio">
+
+<!-- ================= MENU LATERAL ================= -->
+<aside class="menu">
+  <div class="menu__marca">Proyecto 01</div>
+  <div class="menu__titulo">Lista de Tareas<br>explicada línea por línea</div>
+
+  <a href="index.html">← Ver la app funcionando</a>
+
+  <div class="menu__grupo">Empezar</div>
+  <a href="#intro">Qué vas a aprender</a>
+  <a href="#panorama">Cómo funciona en 1 minuto</a>
+
+  <div class="menu__grupo">El código</div>
+  <a href="#html">1 · El HTML (el esqueleto)</a>
+  <a href="#css">2 · El CSS (el diseño)</a>
+  <a href="#js-1">3 · JS · Referencias al HTML</a>
+  <a href="#js-2">4 · JS · El estado</a>
+  <a href="#js-3">5 · JS · Guardar y cargar</a>
+  <a href="#js-4">6 · JS · Funciones de ayuda</a>
+  <a href="#js-5">7 · JS · Dibujar la pantalla</a>
+  <a href="#js-6">8 · JS · Agregar, completar, borrar</a>
+  <a href="#js-7">9 · JS · Escuchar al usuario</a>
+  <a href="#js-8">10 · JS · El arranque</a>
+
+  <div class="menu__grupo">Practicar</div>
+  <a href="#glosario">Glosario</a>
+  <a href="#preguntas">Ponete a prueba</a>
+</aside>
+
+<!-- ================= CONTENIDO ================= -->
+<main class="contenido">
+
+<a class="volver" href="index.html">← Volver a la aplicación</a>
+
+<h1 id="intro">Lista de Tareas, explicada línea por línea</h1>
+<p class="entradilla">
+  Este proyecto usa <strong>JavaScript puro</strong>: sin React, sin jQuery, sin instalar nada.
+  Solo tres archivos y un navegador. Al terminar vas a entender de verdad
+  cómo una aplicación guarda información, la muestra en pantalla y reacciona a lo que hace el usuario.
+</p>
+
+<h3>Lo que vas a aprender acá</h3>
+<ul>
+  <li>Cómo conectar HTML, CSS y JavaScript entre sí.</li>
+  <li>Cómo guardar datos en un <strong>array de objetos</strong> y mantenerlos sincronizados con la pantalla.</li>
+  <li>Los métodos que más se usan en el trabajo real: <code class="en-linea">map</code>, <code class="en-linea">filter</code>, <code class="en-linea">find</code>, <code class="en-linea">some</code>.</li>
+  <li>Cómo escuchar eventos con <strong>delegación</strong> (la técnica que usan las apps grandes).</li>
+  <li>Cómo hacer que los datos <strong>sobrevivan</strong> al cerrar el navegador con <code class="en-linea">localStorage</code>.</li>
+</ul>
+
+<div class="caja caja--tip">
+  <div class="caja__titulo">Cómo leer esta guía</div>
+  <p>Tené la app abierta en otra pestaña. Después de cada sección, probá lo que acabás de leer:
+  cambiá un valor, borrá una línea y mirá qué se rompe. Romper cosas a propósito es la forma
+  más rápida de entender para qué servían.</p>
+</div>
+
+<h2 id="panorama">Cómo funciona todo, en 1 minuto</h2>
+<p>
+  Antes de mirar una sola línea de código, quedate con esta idea, porque es la columna
+  vertebral del proyecto entero:
+</p>
+
+<ol class="pasos">
+  <li><strong>Hay una lista en la memoria.</strong> Una variable llamada <code class="en-linea">tareas</code> guarda todas las tareas como objetos.</li>
+  <li><strong>La pantalla es un reflejo de esa lista.</strong> Una función llamada <code class="en-linea">dibujar()</code> lee <code class="en-linea">tareas</code> y genera el HTML.</li>
+  <li><strong>El usuario nunca toca la pantalla directamente.</strong> Cuando hace clic, cambiamos la lista y volvemos a llamar a <code class="en-linea">dibujar()</code>.</li>
+  <li><strong>Después de cada cambio, guardamos.</strong> La lista se copia a <code class="en-linea">localStorage</code> para que siga ahí mañana.</li>
+</ol>
+
+<div class="caja">
+  <div class="caja__titulo">La regla de oro</div>
+  <p>Nunca modificamos el HTML "a mano" para tachar una tarea. Cambiamos el dato
+  (<code class="en-linea">hecha: true</code>) y dejamos que <code class="en-linea">dibujar()</code> se encargue del resto.
+  Esta idea se llama <strong>"la interfaz es una función del estado"</strong> y es exactamente
+  el principio sobre el que están construidos React, Vue y Svelte. Si lo entendés acá,
+  ya entendiste la mitad de esos frameworks.</p>
+</div>
+
+<h2 id="html">1 · El HTML: el esqueleto</h2>
+<p>
+  El HTML no hace nada por sí solo: solo define <em>qué elementos existen</em> y les pone
+  un nombre para que JavaScript pueda encontrarlos después. Fijate en los
+  <code class="en-linea">id</code>: cada uno de ellos aparece más adelante en el JavaScript.
+</p>
+
+<h3>La cabecera del documento</h3>
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">index.html</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="html">&lt;!DOCTYPE html&gt;
+&lt;html lang="es"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;title&gt;Lista de Tareas | Mini-Proyectos JS&lt;/title&gt;
+  &lt;link rel="stylesheet" href="style.css"&gt;
+&lt;/head&gt;</pre>
+</div>
+
+<ul class="lineas">
+  <li><code>&lt;!DOCTYPE html&gt;</code><span>Le dice al navegador que use las reglas modernas de HTML5. Sin esto, algunos navegadores entran en "modo raro" y el diseño se rompe.</span></li>
+  <li><code>lang="es"</code><span>Indica que la página está en español. Ayuda al buscador de Google y al lector de pantalla de una persona no vidente.</span></li>
+  <li><code>charset="UTF-8"</code><span>Sin esta línea, los acentos y las ñ se ven como <code class="en-linea">Ã±</code>. Es la causa número uno de textos rotos.</span></li>
+  <li><code>viewport</code><span>Hace que la página se adapte al ancho del celular en vez de mostrarse diminuta.</span></li>
+  <li><code>&lt;link rel="stylesheet"&gt;</code><span>Conecta el archivo <code class="en-linea">style.css</code>. Sin esta línea la app funciona igual, pero se ve como un documento de 1998.</span></li>
+</ul>
+
+<h3>El formulario para agregar tareas</h3>
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">index.html</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="html">&lt;form class="formulario" id="formulario"&gt;
+  &lt;input
+    type="text"
+    id="entrada"
+    class="formulario__input"
+    placeholder="¿Qué tenés que hacer hoy?"
+    autocomplete="off"
+    maxlength="120"&gt;
+  &lt;button type="submit" class="formulario__boton"&gt;+&lt;/button&gt;
+&lt;/form&gt;</pre>
+</div>
+
+<ul class="lineas">
+  <li><code>&lt;form&gt;</code><span>Usamos un formulario de verdad, no un simple <code class="en-linea">&lt;div&gt;</code>. Así el usuario puede presionar <strong>Enter</strong> para agregar la tarea y funciona gratis, sin código extra.</span></li>
+  <li><code>id="formulario"</code><span>El nombre con el que JavaScript va a encontrar este elemento.</span></li>
+  <li><code>placeholder</code><span>El texto gris que se ve cuando el campo está vacío. Desaparece al escribir.</span></li>
+  <li><code>autocomplete="off"</code><span>Evita que el navegador muestre sugerencias de otros formularios encima de la app.</span></li>
+  <li><code>maxlength="120"</code><span>Límite de caracteres. Sin esto, alguien pega un texto de 5.000 letras y te rompe el diseño.</span></li>
+  <li><code>type="submit"</code><span>Hace que este botón envíe el formulario. Es lo que dispara el evento <code class="en-linea">submit</code> que vas a ver en el JavaScript.</span></li>
+</ul>
+
+<h3>Los filtros y la lista vacía</h3>
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">index.html</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="html">&lt;nav class="filtros" id="filtros"&gt;
+  &lt;button class="filtros__boton filtros__boton--activo" data-filtro="todas"&gt;Todas&lt;/button&gt;
+  &lt;button class="filtros__boton" data-filtro="pendientes"&gt;Pendientes&lt;/button&gt;
+  &lt;button class="filtros__boton" data-filtro="completadas"&gt;Completadas&lt;/button&gt;
+&lt;/nav&gt;
+
+&lt;!-- AQUI SE DIBUJAN LAS TAREAS DESDE JAVASCRIPT --&gt;
+&lt;ul class="lista" id="lista"&gt;&lt;/ul&gt;</pre>
+</div>
+
+<ul class="lineas">
+  <li><code>data-filtro="todas"</code><span>Un <strong>atributo de datos</strong>. Podés inventar los que quieras con el prefijo <code class="en-linea">data-</code> y leerlos desde JavaScript. Así el botón "sabe" qué filtro representa sin escribir tres funciones distintas.</span></li>
+  <li><code>&lt;ul id="lista"&gt;&lt;/ul&gt;</code><span>Está <strong>vacío a propósito</strong>. Es el contenedor donde JavaScript va a insertar las tareas. Éste es el corazón del proyecto.</span></li>
+</ul>
+
+<div class="caja caja--ojo">
+  <div class="caja__titulo">Ojo con esto</div>
+  <p>El <code class="en-linea">&lt;script src="script.js"&gt;&lt;/script&gt;</code> va <strong>al final del body</strong>, justo antes de <code class="en-linea">&lt;/body&gt;</code>.
+  Si lo ponés en el <code class="en-linea">&lt;head&gt;</code>, el JavaScript se ejecuta antes de que los elementos existan
+  y todos los <code class="en-linea">getElementById</code> devuelven <code class="en-linea">null</code>. Es el error más común de los principiantes.</p>
+</div>
+
+<h2 id="css">2 · El CSS: el diseño</h2>
+<p>
+  No hace falta que entiendas cada propiedad de memoria, pero sí que sepas
+  <strong>dónde tocar</strong> cuando quieras cambiar algo. Estas son las partes que importan.
+</p>
+
+<h3>Variables de color: cambiá la app entera desde un solo lugar</h3>
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">style.css</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="css">:root {
+  --fondo:        #0e1116;
+  --superficie:   #171b22;
+  --texto:        #e6e9ef;
+  --acento:       #4f8cff;
+  --exito:        #35d399;
+  --peligro:      #ff5f6d;
+  --radio:        14px;
+}</pre>
+</div>
+
+<ul class="lineas">
+  <li><code>:root</code><span>Se refiere al documento entero. Lo que definís acá está disponible en todo el archivo.</span></li>
+  <li><code>--acento: #4f8cff</code><span>Una <strong>variable CSS</strong>. Después se usa así: <code class="en-linea">background: var(--acento)</code>.</span></li>
+</ul>
+
+<div class="caja caja--tip">
+  <div class="caja__titulo">Un solo valor, cinco cambios</div>
+  <p><code class="en-linea">--acento</code> pinta el botón de agregar, el borde del campo cuando lo enfocás,
+  su anillo de luz, el resplandor azul del fondo y el filtro que está activo. Cambiar ese único valor
+  cambia las cinco cosas a la vez.</p>
+  <p>Sin variables tendrías el mismo color escrito cinco veces en lugares distintos del archivo, y para
+  cambiarlo habría que encontrarlos todos sin olvidarse de ninguno. <strong>Eso</strong> es lo que quiere
+  decir que un código sea mantenible: que un cambio se haga en un solo lugar.</p>
+</div>
+
+<h3>El truco del <code class="en-linea">box-sizing</code></h3>
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">style.css</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="css">* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}</pre>
+</div>
+<p>
+  El <code class="en-linea">*</code> significa "todos los elementos".
+  <code class="en-linea">border-box</code> hace que el ancho que le pongas a un elemento
+  <strong>incluya</strong> su padding y su borde. Sin esto, una caja de 200px con 20px de padding
+  mide en realidad 240px y todo se te desalinea. Es la primera regla que escribe casi
+  cualquier desarrollador front-end.
+</p>
+
+<h3>Cómo se tacha una tarea completada</h3>
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">style.css</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="css">.tarea--hecha .tarea__texto {
+  color: var(--texto-suave);
+  text-decoration: line-through;
+}
+
+.tarea--hecha .tarea__check {
+  color: #0e1116;
+  background: var(--exito);
+  border-color: var(--exito);
+}</pre>
+</div>
+<p>
+  Acá está la conexión entre CSS y JavaScript, y es importante que la veas:
+  <strong>JavaScript no cambia colores ni tacha texto</strong>. Lo único que hace es agregar o quitar
+  la clase <code class="en-linea">tarea--hecha</code>. El CSS ya tiene escrito de antemano
+  cómo se ve una tarea con esa clase. Separar responsabilidades así hace que ambos archivos
+  queden mucho más simples.
+</p>
+
+<h3>El botón de borrar que aparece al pasar el mouse</h3>
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">style.css</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="css">.tarea__borrar { opacity: 0; }
+
+.tarea:hover .tarea__borrar { opacity: 1; }
+
+@media (hover: none) {
+  .tarea__borrar { opacity: 1; }
+}</pre>
+</div>
+
+<ul class="lineas">
+  <li><code>opacity: 0</code><span>El botón está ahí, ocupa su lugar, pero es invisible. Mantiene la interfaz limpia.</span></li>
+  <li><code>.tarea:hover .tarea__borrar</code><span>"Cuando el mouse esté sobre la tarea, mostrá su botón de borrar".</span></li>
+  <li><code>@media (hover: none)</code><span>Detecta pantallas táctiles, donde no existe el "pasar el mouse". En celulares el botón siempre se ve. Sin esta regla, la app sería <strong>imposible de usar en el teléfono</strong>: un detalle que separa un proyecto de práctica de uno profesional.</span></li>
+</ul>
+
+<h2 id="js-1">3 · JavaScript: referencias al HTML</h2>
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">script.js</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="js">'use strict';
+
+const formulario   = document.getElementById('formulario');
+const entrada      = document.getElementById('entrada');
+const lista        = document.getElementById('lista');
+const filtros      = document.getElementById('filtros');
+const contador     = document.getElementById('contador');
+const botonLimpiar = document.getElementById('limpiar');
+const vacio        = document.getElementById('vacio');
+const aviso        = document.getElementById('aviso');
+
+const CLAVE_GUARDADO = 'mini-proyectos-js:tareas';</pre>
+</div>
+
+<ul class="lineas">
+  <li><code>'use strict'</code><span>Activa el modo estricto: JavaScript deja de perdonar errores silenciosamente y te avisa. Por ejemplo, si escribís mal el nombre de una variable, te lo dice en vez de crear una nueva.</span></li>
+  <li><code>const</code><span>Crea una variable que <strong>no se va a reasignar</strong>. Si escribís <code class="en-linea">const x = 1</code> y después <code class="en-linea">x = 2</code>, JavaScript te da error. Es una red de seguridad, no una limitación.</span></li>
+  <li><code>document.getElementById('entrada')</code><span>Busca en la página el elemento cuyo <code class="en-linea">id</code> es <code class="en-linea">entrada</code> y te devuelve una referencia a él. A partir de acá, la variable <code class="en-linea">entrada</code> <strong>es</strong> ese campo de texto.</span></li>
+  <li><code>CLAVE_GUARDADO</code><span>En MAYÚSCULAS porque es una constante que nunca cambia. Es una convención: cualquier programador que lea tu código entiende de inmediato que ese valor es fijo.</span></li>
+</ul>
+
+<div class="caja">
+  <div class="caja__titulo">¿Por qué buscar todo al principio?</div>
+  <p>Buscar un elemento en el documento tiene un costo. Si lo hiciéramos dentro de cada función,
+  el navegador tendría que recorrer la página una y otra vez. Buscándolos una sola vez al inicio
+  el código queda más rápido <em>y</em> más corto: escribís <code class="en-linea">entrada</code> en vez de
+  <code class="en-linea">document.getElementById('entrada')</code> cada vez.</p>
+</div>
+
+<h2 id="js-2">4 · El estado: la única fuente de verdad</h2>
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">script.js</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="js">let tareas = cargarTareas();
+let filtroActual = 'todas';</pre>
+</div>
+
+<ul class="lineas">
+  <li><code>let</code><span>A diferencia de <code class="en-linea">const</code>, <code class="en-linea">let</code> sí permite reasignar. Lo usamos porque <code class="en-linea">tareas</code> se reemplaza entera cuando borramos algo.</span></li>
+  <li><code>filtroActual</code><span>Guarda cuál de los tres botones está activo. Puede valer <code class="en-linea">'todas'</code>, <code class="en-linea">'pendientes'</code> o <code class="en-linea">'completadas'</code>.</span></li>
+</ul>
+
+<p>Cada tarea es un <strong>objeto</strong> con tres propiedades:</p>
+
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">forma de una tarea</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="js">{
+  id: 1723658400000,        // momento exacto en que se creó
+  texto: "Comprar pan",     // lo que escribió el usuario
+  hecha: false              // ¿está completada?
+}</pre>
+</div>
+
+<p>Y <code class="en-linea">tareas</code> es simplemente un <strong>array</strong> (una lista) de esos objetos:</p>
+
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">ejemplo</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="js">[
+  { id: 1723658400000, texto: "Comprar pan",         hecha: false },
+  { id: 1723658300000, texto: "Estudiar JavaScript", hecha: true  }
+]</pre>
+</div>
+
+<div class="caja caja--tip">
+  <div class="caja__titulo">El concepto más importante del proyecto</div>
+  <p>Todo lo que ves en pantalla sale de este array. Si querés saber por qué la app muestra algo,
+  no mires el HTML: mirá el array. Abrí la consola del navegador (F12) mientras usás la app
+  y escribí <code class="en-linea">tareas</code>. Vas a ver la lista real cambiando en vivo.</p>
+</div>
+
+<h2 id="js-3">5 · Guardar y cargar: que no se pierda nada</h2>
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">script.js</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="js">function guardarTareas() {
+  try {
+    localStorage.setItem(CLAVE_GUARDADO, JSON.stringify(tareas));
+  } catch (error) {
+    console.warn('No se pudieron guardar las tareas:', error);
+  }
+}
+
+function cargarTareas() {
+  try {
+    const guardado = localStorage.getItem(CLAVE_GUARDADO);
+    if (!guardado) return [];
+    const datos = JSON.parse(guardado);
+    return Array.isArray(datos) ? datos : [];
+  } catch (error) {
+    console.warn('No se pudieron leer las tareas:', error);
+    return [];
+  }
+}</pre>
+</div>
+
+<ul class="lineas">
+  <li><code>localStorage</code><span>Un pequeño almacén que vive dentro del navegador del usuario. Lo que guardás ahí sigue estando mañana, la semana que viene y después de apagar la computadora.</span></li>
+  <li><code>JSON.stringify(tareas)</code><span><code class="en-linea">localStorage</code> <strong>solo guarda texto</strong>. Esto convierte el array en una cadena de texto: <code class="en-linea">'[{"id":172...}]'</code>.</span></li>
+  <li><code>JSON.parse(guardado)</code><span>La operación inversa: convierte ese texto de vuelta en un array de objetos usable.</span></li>
+  <li><code>if (!guardado) return []</code><span>Si es la primera vez que la persona entra, no hay nada guardado. Devolvemos un array vacío en vez de dejar que el programa falle.</span></li>
+  <li><code>Array.isArray(datos) ? datos : []</code><span>Un <strong>operador ternario</strong>: <em>¿es un array? entonces usalo, si no usá uno vacío</em>. Nos protege de datos corruptos.</span></li>
+  <li><code>try / catch</code><span>"Intentá esto; si explota, hacé esto otro en vez de romper todo". Algunos navegadores en modo incógnito bloquean <code class="en-linea">localStorage</code>: con <code class="en-linea">try/catch</code> la app sigue funcionando igual, solo que sin memoria.</span></li>
+</ul>
+
+<h2 id="js-4">6 · Funciones de ayuda</h2>
+
+<h3>Protegerse del HTML malicioso</h3>
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">script.js</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="js">function limpiarTexto(texto) {
+  const div = document.createElement('div');
+  div.textContent = texto;
+  return div.innerHTML;
+}</pre>
+</div>
+
+<p>
+  Esta función chiquita hace algo importante. Como más adelante insertamos el texto del usuario
+  usando <code class="en-linea">innerHTML</code>, si alguien escribiera
+  <code class="en-linea">&lt;img src=x onerror=alert(1)&gt;</code> como tarea, el navegador lo ejecutaría
+  como código real. Eso se llama <strong>XSS</strong> y es una de las vulnerabilidades más comunes de la web.
+</p>
+
+<ul class="lineas">
+  <li><code>createElement('div')</code><span>Crea un div en la memoria, sin agregarlo a la página.</span></li>
+  <li><code>div.textContent = texto</code><span><code class="en-linea">textContent</code> trata todo como <strong>texto plano</strong>: no interpreta etiquetas.</span></li>
+  <li><code>return div.innerHTML</code><span>Al leerlo de vuelta como HTML, los caracteres peligrosos ya vienen convertidos en <code class="en-linea">&amp;lt;</code> y <code class="en-linea">&amp;gt;</code>. Ahora se muestran como texto, no se ejecutan.</span></li>
+</ul>
+
+<h3>El aviso emergente</h3>
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">script.js</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="js">let temporizadorAviso;
+
+function mostrarAviso(mensaje) {
+  aviso.textContent = mensaje;
+  aviso.classList.add('aviso--visible');
+  clearTimeout(temporizadorAviso);
+  temporizadorAviso = setTimeout(() =&gt; {
+    aviso.classList.remove('aviso--visible');
+  }, 2000);
+}</pre>
+</div>
+
+<ul class="lineas">
+  <li><code>classList.add(...)</code><span>Agrega una clase CSS al elemento. El CSS se encarga de la animación de entrada.</span></li>
+  <li><code>clearTimeout(...)</code><span>Cancela el reloj anterior. Sin esta línea, si borrás dos tareas seguidas rápido, el primer temporizador escondería el segundo aviso demasiado pronto. Es un detalle chico que casi nadie hace y que se nota.</span></li>
+  <li><code>setTimeout(fn, 2000)</code><span>Ejecutá esta función dentro de 2000 milisegundos (2 segundos).</span></li>
+  <li><code>() =&gt; { ... }</code><span>Una <strong>función flecha</strong>: una forma corta de escribir <code class="en-linea">function() { ... }</code>.</span></li>
+</ul>
+
+<h3>Filtrar lo que se muestra</h3>
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">script.js</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="js">function tareasVisibles() {
+  if (filtroActual === 'pendientes')  return tareas.filter(t =&gt; !t.hecha);
+  if (filtroActual === 'completadas') return tareas.filter(t =&gt;  t.hecha);
+  return tareas;
+}</pre>
+</div>
+
+<ul class="lineas">
+  <li><code>.filter(...)</code><span>Recorre el array y devuelve <strong>un array nuevo</strong> solo con los que cumplen la condición. El original queda intacto: por eso los filtros no borran nada.</span></li>
+  <li><code>t =&gt; !t.hecha</code><span>"Para cada tarea <code class="en-linea">t</code>, quedátela si <code class="en-linea">hecha</code> es falso". El <code class="en-linea">!</code> significa "no".</span></li>
+  <li><code>===</code><span>Compara valor <strong>y</strong> tipo. Usá siempre <code class="en-linea">===</code> y no <code class="en-linea">==</code>: con dos iguales, <code class="en-linea">'1' == 1</code> da verdadero y eso genera errores rarísimos.</span></li>
+</ul>
+
+<h2 id="js-5">7 · Dibujar la pantalla</h2>
+<p>Esta es la función más importante del proyecto. Se llama cada vez que algo cambia.</p>
+
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">script.js</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="js">function dibujar() {
+  const visibles = tareasVisibles();
+
+  lista.innerHTML = visibles.map(tarea =&gt; `
+    &lt;li class="tarea ${tarea.hecha ? 'tarea--hecha' : ''}" data-id="${tarea.id}"&gt;
+      &lt;button class="tarea__check" data-accion="alternar"&gt;&lt;!-- icono tilde --&gt;&lt;/button&gt;
+      &lt;span class="tarea__texto"&gt;${limpiarTexto(tarea.texto)}&lt;/span&gt;
+      &lt;button class="tarea__borrar" data-accion="borrar"&gt;&lt;!-- icono papelera --&gt;&lt;/button&gt;
+    &lt;/li&gt;
+  `).join('');
+
+  const pendientes = tareas.filter(t =&gt; !t.hecha).length;
+  contador.textContent =
+    pendientes === 1 ? '1 tarea pendiente' : `${pendientes} tareas pendientes`;
+
+  botonLimpiar.style.visibility = tareas.some(t =&gt; t.hecha) ? 'visible' : 'hidden';
+}</pre>
+</div>
+
+<ul class="lineas">
+  <li><code>.map(tarea =&gt; ...)</code><span>Transforma cada elemento del array en otra cosa. Acá convierte <strong>cada objeto tarea en un pedazo de HTML</strong>. Si hay 5 tareas, devuelve un array de 5 textos.</span></li>
+  <li><code>` ... `</code><span>Comillas invertidas: <strong>template literals</strong>. Permiten escribir texto en varias líneas e insertar valores con <code class="en-linea">${...}</code>.</span></li>
+  <li><code>${tarea.hecha ? 'tarea--hecha' : ''}</code><span>Si la tarea está hecha, poné esa clase; si no, no pongas nada. Así es como el CSS sabe cuándo tachar el texto.</span></li>
+  <li><code>data-id="${tarea.id}"</code><span>Guardamos el id <strong>dentro del propio HTML</strong>. Cuando el usuario haga clic, vamos a leer este atributo para saber a qué tarea se refería.</span></li>
+  <li><code>data-accion="alternar"</code><span>Etiqueta qué hace cada botón. Una sola función de clics va a leer esto y decidir qué ejecutar.</span></li>
+  <li><code>.join('')</code><span><code class="en-linea">map</code> devuelve un array de textos; <code class="en-linea">join('')</code> los pega todos en un solo texto gigante, sin separador.</span></li>
+  <li><code>lista.innerHTML = ...</code><span>Reemplaza <strong>todo</strong> el contenido de la lista de una sola vez. Es mucho más rápido que insertar los elementos de a uno, porque el navegador redibuja una vez y no cinco.</span></li>
+  <li><code>.length</code><span>La cantidad de elementos del array. Combinado con <code class="en-linea">filter</code>, es la forma más simple de contar.</span></li>
+  <li><code>.some(t =&gt; t.hecha)</code><span>Devuelve verdadero si <strong>al menos una</strong> tarea está completada. Lo usamos para esconder el botón "Borrar completadas" cuando no hay ninguna.</span></li>
+</ul>
+
+<div class="caja caja--ojo">
+  <div class="caja__titulo">Lo que hay que entender de esta función</div>
+  <p><code class="en-linea">dibujar()</code> <strong>no sabe qué cambió</strong> y no le importa. Tira todo lo que había en pantalla
+  y lo reconstruye desde cero leyendo el array. Suena ineficiente, pero para listas de este tamaño es
+  instantáneo y hace que el código sea muchísimo más fácil de entender: nunca hay estados intermedios raros.
+  Es, en esencia, una versión mínima de lo que hace React.</p>
+</div>
+
+<h2 id="js-6">8 · Agregar, completar y borrar</h2>
+<p>Fijate en el patrón: <strong>las tres funciones hacen exactamente lo mismo en el mismo orden</strong>.
+Cambian el array, guardan, y vuelven a dibujar. Nada más.</p>
+
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">script.js</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="js">function agregarTarea(texto) {
+  tareas.unshift({
+    id: Date.now(),
+    texto: texto,
+    hecha: false
+  });
+  guardarTareas();
+  dibujar();
+}
+
+function alternarTarea(id) {
+  const tarea = tareas.find(t =&gt; t.id === id);
+  if (!tarea) return;
+  tarea.hecha = !tarea.hecha;
+  guardarTareas();
+  dibujar();
+}
+
+function borrarTarea(id) {
+  tareas = tareas.filter(t =&gt; t.id !== id);
+  guardarTareas();
+  dibujar();
+  mostrarAviso('Tarea eliminada');
+}</pre>
+</div>
+
+<ul class="lineas">
+  <li><code>.unshift(...)</code><span>Agrega al <strong>principio</strong> del array, para que la tarea nueva aparezca arriba. Si preferís que aparezca abajo, cambiá <code class="en-linea">unshift</code> por <code class="en-linea">push</code>: es literalmente la única diferencia.</span></li>
+  <li><code>Date.now()</code><span>Devuelve los milisegundos transcurridos desde 1970. Es un número distinto cada vez, así que sirve perfecto como identificador único sin instalar ninguna librería.</span></li>
+  <li><code>.find(t =&gt; t.id === id)</code><span>Busca <strong>el primer</strong> elemento que cumpla la condición y lo devuelve. A diferencia de <code class="en-linea">filter</code>, devuelve el objeto solo, no un array.</span></li>
+  <li><code>if (!tarea) return</code><span>Si no encontró nada, salimos de la función. Sin esta línea, la próxima línea intentaría leer una propiedad de <code class="en-linea">undefined</code> y la app se rompería.</span></li>
+  <li><code>tarea.hecha = !tarea.hecha</code><span>Invierte el valor: si era <code class="en-linea">true</code> pasa a <code class="en-linea">false</code> y viceversa. Un solo renglón para "marcar y desmarcar".</span></li>
+  <li><code>tareas = tareas.filter(t =&gt; t.id !== id)</code><span>Para borrar no quitamos un elemento: creamos un array nuevo <strong>sin</strong> ese elemento y lo reasignamos. Por eso <code class="en-linea">tareas</code> se declaró con <code class="en-linea">let</code> y no con <code class="en-linea">const</code>.</span></li>
+</ul>
+
+<div class="caja">
+  <div class="caja__titulo">El patrón que se repite</div>
+  <p><strong>cambiar el array → guardar → dibujar.</strong> Siempre en ese orden, siempre las tres.
+  Si más adelante agregás una función nueva (por ejemplo, "editar tarea"), seguí este mismo patrón
+  y va a funcionar sin que tengas que tocar nada más.</p>
+</div>
+
+<h2 id="js-7">9 · Escuchar al usuario</h2>
+
+<h3>El formulario</h3>
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">script.js</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="js">formulario.addEventListener('submit', evento =&gt; {
+  evento.preventDefault();
+  const texto = entrada.value.trim();
+  if (texto === '') {
+    mostrarAviso('Escribí algo primero');
+    return;
+  }
+  agregarTarea(texto);
+  entrada.value = '';
+  entrada.focus();
+});</pre>
+</div>
+
+<ul class="lineas">
+  <li><code>addEventListener('submit', ...)</code><span>"Cuando este formulario se envíe, ejecutá esta función". Se dispara tanto al hacer clic en el botón como al presionar Enter.</span></li>
+  <li><code>evento.preventDefault()</code><span><strong>Fundamental.</strong> Por defecto, enviar un formulario recarga la página entera y perderías todo. Esto lo cancela.</span></li>
+  <li><code>.trim()</code><span>Saca los espacios del principio y del final. Sin esto, alguien podría agregar una tarea que es solo espacios en blanco.</span></li>
+  <li><code>entrada.value = ''</code><span>Vacía el campo después de agregar, para que se pueda escribir la siguiente sin borrar a mano.</span></li>
+  <li><code>entrada.focus()</code><span>Vuelve a poner el cursor en el campo. Permite agregar diez tareas seguidas sin tocar el mouse. Detalles así son los que hacen que una app se sienta bien hecha.</span></li>
+</ul>
+
+<h3>Delegación de eventos: la técnica clave</h3>
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">script.js</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="js">lista.addEventListener('click', evento =&gt; {
+  const boton = evento.target.closest('[data-accion]');
+  if (!boton) return;
+
+  const id = Number(boton.closest('.tarea').dataset.id);
+
+  if (boton.dataset.accion === 'alternar') alternarTarea(id);
+  if (boton.dataset.accion === 'borrar')   borrarTarea(id);
+});</pre>
+</div>
+
+<p>
+  Acá hay una idea que vale oro. En vez de ponerle un escuchador de clics a cada botón de cada tarea,
+  le ponemos <strong>uno solo a la lista completa</strong>. Cuando hacés clic en un botón, el evento
+  "sube" desde el botón hasta la lista, y ahí lo atrapamos.
+</p>
+
+<ul class="lineas">
+  <li><code>evento.target</code><span>El elemento exacto donde se hizo clic. Puede ser el botón, o el ícono que está adentro del botón.</span></li>
+  <li><code>.closest('[data-accion]')</code><span>Sube por los elementos padres hasta encontrar uno que tenga el atributo <code class="en-linea">data-accion</code>. Así funciona igual hagas clic en el botón o en el dibujito de adentro.</span></li>
+  <li><code>if (!boton) return</code><span>Si el clic fue en un espacio vacío de la lista, no hay nada que hacer.</span></li>
+  <li><code>.dataset.id</code><span>Lee el atributo <code class="en-linea">data-id</code> que habíamos escrito al dibujar. <code class="en-linea">data-mi-cosa</code> se lee como <code class="en-linea">dataset.miCosa</code>.</span></li>
+  <li><code>Number(...)</code><span>Los atributos HTML siempre son texto. Como los id son números, hay que convertirlos: si no, <code class="en-linea">"123" === 123</code> daría falso y <code class="en-linea">find</code> nunca encontraría la tarea.</span></li>
+</ul>
+
+<div class="caja caja--tip">
+  <div class="caja__titulo">Por qué esto importa tanto</div>
+  <p>Con delegación, el código funciona para tareas que <strong>todavía no existen</strong>. Si le pusieras
+  un escuchador a cada botón al dibujar, tendrías que volver a asignarlos cada vez que se redibuja la lista,
+  y cada uno consumiría memoria. Con 500 tareas, eso son 1.000 escuchadores contra 1. Esta técnica se usa
+  en prácticamente todas las aplicaciones web serias.</p>
+</div>
+
+<h3>Los filtros</h3>
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">script.js</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="js">filtros.addEventListener('click', evento =&gt; {
+  const boton = evento.target.closest('[data-filtro]');
+  if (!boton) return;
+
+  filtroActual = boton.dataset.filtro;
+
+  filtros.querySelectorAll('.filtros__boton')
+         .forEach(b =&gt; b.classList.remove('filtros__boton--activo'));
+  boton.classList.add('filtros__boton--activo');
+
+  dibujar();
+});</pre>
+</div>
+
+<ul class="lineas">
+  <li><code>querySelectorAll(...)</code><span>Devuelve <strong>todos</strong> los elementos que coinciden, no solo el primero.</span></li>
+  <li><code>.forEach(b =&gt; ...)</code><span>Recorre esa colección y ejecuta algo con cada uno. Acá: sacarle la clase de "activo" a todos.</span></li>
+  <li><code>boton.classList.add(...)</code><span>Y después se la ponemos solo al que se acaba de clickear. Apagar todos y prender uno: el patrón clásico de pestañas.</span></li>
+</ul>
+
+<h2 id="js-8">10 · El arranque</h2>
+<div class="codigo">
+  <div class="codigo__barra"><span class="codigo__archivo">script.js</span><button class="codigo__copiar">Copiar</button></div>
+<pre data-lang="js">fecha.textContent = new Date().toLocaleDateString('es-ES', {
+  weekday: 'long', day: 'numeric', month: 'long'
+});
+
+dibujar();
+entrada.focus();</pre>
+</div>
+
+<ul class="lineas">
+  <li><code>new Date()</code><span>Crea un objeto con la fecha y hora de este momento.</span></li>
+  <li><code>toLocaleDateString('es-ES', {...})</code><span>La formatea en español: <em>"viernes, 14 de agosto"</em>. Si le pasás <code class="en-linea">'en-US'</code>, la escribe en inglés. Todo esto viene incluido en el navegador, sin librerías.</span></li>
+  <li><code>dibujar()</code><span>La primera llamada. Pinta en pantalla las tareas que estaban guardadas de la sesión anterior.</span></li>
+  <li><code>entrada.focus()</code><span>El cursor ya está listo apenas abre la página. Podés empezar a escribir sin hacer un solo clic.</span></li>
+</ul>
+
+<h2 id="glosario">Glosario de bolsillo</h2>
+<ul class="lineas">
+  <li><code>array</code><span>Una lista ordenada de valores: <code class="en-linea">[1, 2, 3]</code>.</span></li>
+  <li><code>objeto</code><span>Un conjunto de datos con nombre: <code class="en-linea">{ nombre: "Ana", edad: 30 }</code>.</span></li>
+  <li><code>map</code><span>Transforma cada elemento y devuelve un array del mismo tamaño.</span></li>
+  <li><code>filter</code><span>Devuelve un array más chico, solo con los que cumplen una condición.</span></li>
+  <li><code>find</code><span>Devuelve el primer elemento que cumple la condición (no un array).</span></li>
+  <li><code>some</code><span>Devuelve <code class="en-linea">true</code> si al menos uno cumple la condición.</span></li>
+  <li><code>estado</code><span>Los datos que describen la app en este momento. Acá: <code class="en-linea">tareas</code> y <code class="en-linea">filtroActual</code>.</span></li>
+  <li><code>evento</code><span>Algo que pasa en la página: un clic, una tecla, el envío de un formulario.</span></li>
+  <li><code>DOM</code><span>La representación de la página que el navegador tiene en memoria y que JavaScript puede modificar.</span></li>
+  <li><code>delegación</code><span>Escuchar eventos en un elemento padre en lugar de en cada hijo.</span></li>
+  <li><code>persistencia</code><span>Que los datos sobrevivan al cerrar la página.</span></li>
+</ul>
+
+<h2 id="preguntas">Ponete a prueba</h2>
+<p>
+  Diez preguntas sobre lo que acabás de leer. No son de memoria: son las cosas que de verdad
+  importan a la hora de escribir código. Si te equivocás no pasa nada — cada pregunta se puede
+  <strong>reintentar</strong> las veces que quieras, y abajo de cada respuesta te explico el porqué.
+</p>
+
+<div class="quiz" id="quiz">
+  <div class="quiz__barra">
+    <span class="quiz__marcador" id="quiz-marcador">Sin responder</span>
+    <span class="quiz__progreso"><i id="quiz-progreso"></i></span>
+    <button class="quiz__reiniciar" id="quiz-reiniciar">Reiniciar todo</button>
+  </div>
+  <div id="quiz-lista"></div>
+</div>
+
+<div class="caja caja--tip">
+  <div class="caja__titulo">Y ahora tocá los colores de verdad</div>
+  <p>
+    Todo lo que leíste sobre las variables de <code class="en-linea">:root</code> lo podés probar sin
+    escribir una sola línea. Abrí <a href="index.html">la aplicación</a> y hacé clic en el botón
+    <strong>Colores</strong>, arriba a la derecha: vas a poder cambiar el fondo, el texto, los botones
+    y los colores de completar y borrar, y ver el CSS exacto que estás generando mientras lo hacés.
+  </p>
+</div>
+
+<p style="margin-top:44px;padding-top:22px;border-top:1px solid var(--borde);color:var(--texto-suave);font-size:.87rem">
+  <strong style="color:#fff">Proyecto 1 de 5</strong> — 5 Mini-Proyectos de JavaScript · Código Listo + Explicado en Español.
+</p>
+
+</main>
+</div>
+
+<script>
+/* ---- Resaltado de sintaxis (mini, sin librerías) ---- */
+const PALABRAS = /\b(const|let|var|function|return|if|else|for|of|in|new|try|catch|typeof|this)\b/;
+const GLOBALES = /\b(document|localStorage|JSON|console|Date|Array|Number|String|setTimeout|clearTimeout|true|false|null|undefined)\b/;
+
+function pintarJS(t){
+  return t.replace(
+    /(\/\*[\s\S]*?\*\/|\/\/[^\n]*)|('[^'\n]*'|"[^"\n]*"|`[^`]*`)|(\b[A-Za-z_$][\w$]*)(?=\s*\()|(\b\d+(?:\.\d+)?\b)|(\b[A-Za-z_$][\w$]*\b)/g,
+    (m, com, str, fun, num, pal) => {
+      if (com) return '<span class="t-com">' + m + '</span>';
+      if (str) return '<span class="t-str">' + m + '</span>';
+      if (fun) return '<span class="' + (GLOBALES.test(m) ? 't-glo' : 't-fun') + '">' + m + '</span>';
+      if (num) return '<span class="t-num">' + m + '</span>';
+      if (PALABRAS.test(m)) return '<span class="t-pal">' + m + '</span>';
+      if (GLOBALES.test(m)) return '<span class="t-glo">' + m + '</span>';
+      return m;
+    }
+  );
+}
+function pintarHTML(t){
+  return t.replace(/(&lt;!--[\s\S]*?--&gt;)|(&lt;\/?)([\w-]+)|([\w-]+)(?==)|("[^"]*")/g,
+    (m, com, ab, tag, atr, str) => {
+      if (com) return '<span class="t-com">' + m + '</span>';
+      if (tag) return ab + '<span class="t-tag">' + tag + '</span>';
+      if (atr) return '<span class="t-atr">' + m + '</span>';
+      if (str) return '<span class="t-str">' + m + '</span>';
+      return m;
+    });
+}
+function pintarCSS(t){
+  return t.replace(/(\/\*[\s\S]*?\*\/)|(^[^{}\n]*)(?=\s*\{)|([\w-]+)(?=\s*:)|(#[0-9a-fA-F]{3,8}|\b\d+(?:\.\d+)?(?:px|rem|em|%|s|ms|vh|vw)?\b)/gm,
+    (m, com, sel, pro, val) => {
+      if (com) return '<span class="t-com">' + m + '</span>';
+      if (sel) return '<span class="t-sel">' + m + '</span>';
+      if (pro) return '<span class="t-pro">' + m + '</span>';
+      if (val) return '<span class="t-num">' + m + '</span>';
+      return m;
+    });
+}
+
+document.querySelectorAll('pre[data-lang]').forEach(pre => {
+  const lang = pre.dataset.lang;
+  const bruto = pre.innerHTML;
+  pre.innerHTML = lang === 'js'   ? pintarJS(bruto)
+                : lang === 'html' ? pintarHTML(bruto)
+                : lang === 'css'  ? pintarCSS(bruto)
+                : bruto;
+});
+
+/* ---- Botón copiar ---- */
+document.querySelectorAll('.codigo').forEach(caja => {
+  const boton = caja.querySelector('.codigo__copiar');
+  if (!boton) return;
+  boton.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(caja.querySelector('pre').innerText);
+      boton.textContent = '¡Copiado!';
+    } catch (e) {
+      boton.textContent = 'No se pudo copiar';
+    }
+    setTimeout(() => boton.textContent = 'Copiar', 1600);
+  });
+});
+
+/* ---- Marcar la sección activa en el menú ---- */
+const enlaces  = [...document.querySelectorAll('.menu a[href^="#"]')];
+const titulos  = [...document.querySelectorAll('h1[id],h2[id]')];
+
+function marcarActivo() {
+  let actual = titulos[0];
+  for (const t of titulos) {
+    if (t.getBoundingClientRect().top <= 120) actual = t;
+  }
+  enlaces.forEach(a => a.classList.toggle('activo', a.getAttribute('href') === '#' + actual.id));
+}
+
+window.addEventListener('scroll', marcarActivo, { passive: true });
+marcarActivo();
+</script>
+
+<script>
+/* ============================================================
+   CUESTIONARIO
+   Cuatro tipos de pregunta: opcion multiple, verdadero/falso,
+   escribir la respuesta y ordenar pasos.
+   Cada una se puede reintentar por separado.
+   ============================================================ */
+(function () {
+
+  const lista      = document.getElementById('quiz-lista');
+  const marcador   = document.getElementById('quiz-marcador');
+  const progreso   = document.getElementById('quiz-progreso');
+  const btnReinicio= document.getElementById('quiz-reiniciar');
+
+  if (!lista) return;
+
+  const CLAVE = 'mini-proyectos-js:preguntas';
+
+  /* ---------- Las preguntas ---------- */
+  const PREGUNTAS = [
+    {
+      tipo: 'opcion',
+      texto: '¿Cuál es la <b>única fuente de verdad</b> de la aplicación? Es decir, ¿de dónde sale todo lo que ves en pantalla?',
+      opciones: [
+        'El HTML que está escrito dentro de <code>&lt;ul id="lista"&gt;</code>',
+        'El array <code>tareas</code>',
+        'Lo que hay guardado en <code>localStorage</code>',
+        'Las clases CSS de cada <code>&lt;li&gt;</code>'
+      ],
+      correcta: 1,
+      porque: 'El <code>&lt;ul&gt;</code> del HTML está vacío a propósito. <code>dibujar()</code> lee el array <code>tareas</code> y genera todo desde ahí. Si querés saber por qué la app muestra algo, mirá el array, no el HTML.'
+    },
+    {
+      tipo: 'vf',
+      texto: 'Cuando marcás una tarea como completada, <code>dibujar()</code> modifica solamente ese <code>&lt;li&gt;</code> para no rehacer la lista entera.',
+      correcta: false,
+      porque: 'Hace justo lo contrario: tira <b>todo</b> el contenido de la lista y lo reconstruye desde cero leyendo el array. Suena ineficiente, pero para listas de este tamaño es instantáneo y evita estados intermedios raros. Es, en miniatura, lo que hace React.'
+    },
+    {
+      tipo: 'escribir',
+      texto: '¿Qué método de array devuelve el <b>primer</b> elemento que cumple una condición, y no un array nuevo?',
+      ejemplo: 'escribí solo el nombre del método',
+      respuestas: ['find'],
+      porque: '<code>find</code> devuelve el objeto solo. Por eso <code>alternarTarea()</code> puede escribir <code>tarea.hecha = !tarea.hecha</code> directamente. <code>filter</code>, en cambio, siempre devuelve un array.'
+    },
+    {
+      tipo: 'orden',
+      texto: 'Las tres funciones que modifican tareas (<code>agregarTarea</code>, <code>alternarTarea</code> y <code>borrarTarea</code>) siguen siempre el mismo patrón. Tocá los pasos en el orden correcto.',
+      pasos: [
+        { t: 'Volver a dibujar la pantalla', pos: 3 },
+        { t: 'Cambiar el array de tareas',   pos: 1 },
+        { t: 'Guardar en localStorage',      pos: 2 }
+      ],
+      porque: 'Cambiar → guardar → dibujar. Siempre en ese orden y siempre los tres. Si mañana agregás una función nueva, seguí este patrón y va a funcionar sin tocar nada más.'
+    },
+    {
+      tipo: 'opcion',
+      texto: 'En el escuchador del formulario, ¿qué pasaría si borráramos la línea <code>evento.preventDefault()</code>?',
+      opciones: [
+        'La tarea se agregaría dos veces',
+        'Dejaría de funcionar la tecla Enter',
+        'La página se recargaría y se perdería lo que estabas haciendo',
+        'No pasaría nada, es opcional'
+      ],
+      correcta: 2,
+      porque: 'Por defecto, enviar un formulario recarga la página. <code>preventDefault()</code> cancela ese comportamiento. Es la línea que más se olvida cuando uno arranca.'
+    },
+    {
+      tipo: 'escribir',
+      texto: 'Querés saber si <b>al menos una</b> tarea está completada, para mostrar u ocultar el botón "Borrar completadas". ¿Qué método usás?',
+      ejemplo: 'escribí solo el nombre del método',
+      respuestas: ['some'],
+      porque: '<code>tareas.some(t =&gt; t.hecha)</code> devuelve <code>true</code> apenas encuentra una que cumpla, sin recorrer el resto.'
+    },
+    {
+      tipo: 'opcion',
+      texto: 'Al hacer clic en una tarea leemos su id con <code>boton.closest(\'.tarea\').dataset.id</code> y lo envolvemos en <code>Number(...)</code>. ¿Por qué es imprescindible convertirlo?',
+      opciones: [
+        'Porque <code>dataset</code> devuelve siempre texto y <code>===</code> compara también el tipo',
+        'Porque los números ocupan menos memoria que el texto',
+        'Porque <code>find</code> solo acepta números',
+        'Porque si no, el id sería negativo'
+      ],
+      correcta: 0,
+      porque: 'Los atributos HTML son siempre texto. Sin convertir, <code>"123" === 123</code> da <code>false</code>, <code>find</code> nunca encontraría la tarea y el clic no haría absolutamente nada, sin ningún error en la consola.'
+    },
+    {
+      tipo: 'vf',
+      texto: 'Como usamos delegación de eventos, hay que volver a asignar los escuchadores de clic cada vez que se redibuja la lista.',
+      correcta: false,
+      porque: 'Esa es justamente la ventaja de la delegación. El escuchador está en el <code>&lt;ul&gt;</code>, que nunca se destruye, así que funciona incluso para tareas que todavía no existen. Con 500 tareas, es 1 escuchador en vez de 1.000.'
+    },
+    {
+      tipo: 'escribir',
+      texto: '<code>localStorage</code> solo guarda texto. ¿Qué usás para convertir el array de tareas en texto antes de guardarlo?',
+      ejemplo: 'por ejemplo: Objeto.metodo',
+      respuestas: ['json.stringify', 'stringify'],
+      porque: '<code>JSON.stringify(tareas)</code> lo convierte en una cadena. Al leerlo hacemos el camino inverso con <code>JSON.parse</code>.'
+    },
+    {
+      tipo: 'opcion',
+      texto: 'La función <code>limpiarTexto()</code> mete el texto en un div, lo lee de vuelta y recién ahí lo usa. ¿Para qué sirve ese rodeo?',
+      opciones: [
+        'Para sacar los espacios sobrantes del principio y el final',
+        'Para que el texto no se ejecute como HTML si alguien escribe una etiqueta',
+        'Para que los acentos se guarden bien',
+        'Para poder medir cuánto ocupa el texto en pantalla'
+      ],
+      correcta: 1,
+      porque: 'Como insertamos el texto con <code>innerHTML</code>, alguien podría escribir una etiqueta y el navegador la ejecutaría. Eso se llama <b>XSS</b>. Los espacios los saca <code>trim()</code>, que es otra cosa.'
+    }
+  ];
+
+  const ETIQUETA = {
+    opcion:   'Elegí una',
+    vf:       'Verdadero o falso',
+    escribir: 'Escribí la respuesta',
+    orden:    'Ordená los pasos'
+  };
+
+  /* ---------- Estado ---------- */
+  // Por cada pregunta guardamos: { dada: <respuesta>, bien: true|false }
+  let estado = cargar();
+  let parciales = {};   // pasos ya elegidos en la pregunta de ordenar, todavia sin corregir
+
+  function cargar() {
+    try {
+      const g = JSON.parse(localStorage.getItem(CLAVE));
+      if (g && typeof g === 'object') return g;
+    } catch (e) {}
+    return {};
+  }
+  function guardar() {
+    try { localStorage.setItem(CLAVE, JSON.stringify(estado)); } catch (e) {}
+  }
+
+  /* ---------- Comparar respuestas escritas ---------- */
+  // Aceptamos mayusculas, espacios, parentesis y el punto de adelante:
+  // "Find()", ".find" y "find" valen todas lo mismo.
+  function normalizar(t) {
+    return String(t).toLowerCase().replace(/\s+/g, '').replace(/[();]/g, '').replace(/^\./, '');
+  }
+
+  /* ---------- Dibujar una pregunta ---------- */
+  function cuerpo(pregunta, i, respondida) {
+    const r = estado[i];
+
+    if (pregunta.tipo === 'opcion' || pregunta.tipo === 'vf') {
+      const opciones = pregunta.tipo === 'vf'
+        ? ['Verdadero', 'Falso']
+        : pregunta.opciones;
+      const correcta = pregunta.tipo === 'vf'
+        ? (pregunta.correcta ? 0 : 1)
+        : pregunta.correcta;
+
+      return '<div class="' + (pregunta.tipo === 'vf' ? 'vf' : 'op') + '">' +
+        opciones.map((o, k) => {
+          let clase = '';
+          if (respondida) {
+            if (k === correcta)      clase = ' op__btn--bien';
+            else if (k === r.dada)   clase = ' op__btn--mal';
+          }
+          const letra = pregunta.tipo === 'vf' ? (k === 0 ? 'V' : 'F') : 'ABCD'[k];
+          return '<button class="op__btn' + clase + '" data-op="' + k + '"' +
+                 (respondida ? ' disabled' : '') + '>' +
+                 '<span class="letra">' + letra + '</span><span>' + o + '</span></button>';
+        }).join('') + '</div>';
+    }
+
+    if (pregunta.tipo === 'escribir') {
+      return '<div class="esc">' +
+        '<input type="text" data-entrada placeholder="' + pregunta.ejemplo + '"' +
+        ' value="' + (respondida ? String(r.dada).replace(/"/g, '&quot;') : '') + '"' +
+        (respondida ? ' disabled' : '') + ' autocomplete="off" spellcheck="false">' +
+        (respondida ? '' : '<button class="p__btn p__btn--principal" data-comprobar>Comprobar</button>') +
+        '</div>';
+    }
+
+    if (pregunta.tipo === 'orden') {
+      const elegidos = respondida ? r.dada : (parciales[i] || []);
+      return '<div class="ord">' +
+        pregunta.pasos.map((paso, k) => {
+          const lugar = elegidos.indexOf(k);
+          let clase = '';
+          if (respondida) clase = (lugar + 1 === paso.pos) ? ' op__btn--bien' : ' op__btn--mal';
+          else if (lugar >= 0) clase = ' op__btn--bien';
+          return '<button class="op__btn' + clase + '" data-paso="' + k + '"' +
+                 (respondida || lugar >= 0 ? ' disabled' : '') + '>' +
+                 '<span class="letra">' + (lugar >= 0 ? lugar + 1 : '·') + '</span>' +
+                 '<span>' + paso.t + '</span></button>';
+        }).join('') + '</div>';
+    }
+    return '';
+  }
+
+  function dibujarUna(i) {
+    const pregunta = PREGUNTAS[i];
+    const r = estado[i];
+    const respondida = !!r;
+
+    const tarjeta = document.createElement('article');
+    tarjeta.className = 'p' + (respondida ? (r.bien ? ' p--bien' : ' p--mal') : '');
+    tarjeta.dataset.i = i;
+
+    let html =
+      '<div class="p__cabecera">' +
+        '<span class="p__num">' + (respondida ? (r.bien ? '✓' : '✕') : (i + 1)) + '</span>' +
+        '<span class="p__tipo">' + ETIQUETA[pregunta.tipo] + '</span>' +
+      '</div>' +
+      '<div class="p__texto">' + pregunta.texto + '</div>' +
+      cuerpo(pregunta, i, respondida);
+
+    if (respondida) {
+      html += '<div class="p__resultado p__resultado--' + (r.bien ? 'bien' : 'mal') + '">' +
+                '<b>' + (r.bien ? '¡Correcto!' : 'No es esa.') + '</b> ' + pregunta.porque +
+              '</div>' +
+              '<div class="p__acciones">' +
+                '<button class="p__btn" data-reintentar>Reintentar esta pregunta</button>' +
+              '</div>';
+    }
+
+    tarjeta.innerHTML = html;
+    return tarjeta;
+  }
+
+  function dibujarTodo() {
+    lista.innerHTML = '';
+    PREGUNTAS.forEach((_, i) => lista.appendChild(dibujarUna(i)));
+    actualizarMarcador();
+  }
+
+  function refrescar(i) {
+    const vieja = lista.querySelector('[data-i="' + i + '"]');
+    vieja.replaceWith(dibujarUna(i));
+    actualizarMarcador();
+  }
+
+  function actualizarMarcador() {
+    const respondidas = Object.keys(estado).length;
+    const aciertos = Object.keys(estado).filter(k => estado[k].bien).length;
+
+    progreso.style.width = (aciertos / PREGUNTAS.length * 100) + '%';
+
+    if (respondidas === 0) {
+      marcador.textContent = 'Sin responder';
+    } else if (respondidas < PREGUNTAS.length) {
+      marcador.innerHTML = '<b>' + aciertos + '</b> de ' + PREGUNTAS.length + ' correctas';
+    } else if (aciertos === PREGUNTAS.length) {
+      marcador.innerHTML = '<b>¡Las 10!</b> Entendiste el proyecto entero.';
+    } else {
+      marcador.innerHTML = '<b>' + aciertos + '</b> de ' + PREGUNTAS.length +
+                           ' correctas · reintentá las que fallaste';
+    }
+  }
+
+  /* ---------- Responder ---------- */
+  function responder(i, dada, bien) {
+    estado[i] = { dada: dada, bien: bien };
+    guardar();
+    refrescar(i);
+  }
+
+  lista.addEventListener('click', evento => {
+    const tarjeta = evento.target.closest('[data-i]');
+    if (!tarjeta) return;
+    const i = Number(tarjeta.dataset.i);
+    const pregunta = PREGUNTAS[i];
+
+    // Reintentar: borramos la respuesta y volvemos a dibujar la pregunta
+    if (evento.target.closest('[data-reintentar]')) {
+      delete estado[i];
+      delete parciales[i];
+      guardar();
+      refrescar(i);
+      return;
+    }
+
+    // Opcion multiple y verdadero/falso
+    const opcion = evento.target.closest('[data-op]');
+    if (opcion) {
+      const k = Number(opcion.dataset.op);
+      const correcta = pregunta.tipo === 'vf'
+        ? (pregunta.correcta ? 0 : 1)
+        : pregunta.correcta;
+      responder(i, k, k === correcta);
+      return;
+    }
+
+    // Escribir la respuesta
+    if (evento.target.closest('[data-comprobar]')) {
+      const campo = tarjeta.querySelector('[data-entrada]');
+      const dada = campo.value.trim();
+      if (dada === '') { campo.focus(); return; }
+      responder(i, dada, pregunta.respuestas.indexOf(normalizar(dada)) !== -1);
+      return;
+    }
+
+    // Ordenar los pasos
+    const paso = evento.target.closest('[data-paso]');
+    if (paso) {
+      const k = Number(paso.dataset.paso);
+      const elegidos = (parciales[i] || []).concat([k]);
+
+      // Todavia faltan pasos: mostramos el avance y esperamos
+      if (elegidos.length < pregunta.pasos.length) {
+        parciales[i] = elegidos;
+        refrescar(i);
+        return;
+      }
+
+      delete parciales[i];
+      const bien = elegidos.every((indice, lugar) => pregunta.pasos[indice].pos === lugar + 1);
+      responder(i, elegidos, bien);
+    }
+  });
+
+  // Enter tambien comprueba en las preguntas de escribir
+  lista.addEventListener('keydown', evento => {
+    if (evento.key !== 'Enter' || !evento.target.matches('[data-entrada]')) return;
+    evento.preventDefault();
+    evento.target.closest('[data-i]').querySelector('[data-comprobar]').click();
+  });
+
+  btnReinicio.addEventListener('click', () => {
+    estado = {};
+    parciales = {};
+    guardar();
+    dibujarTodo();
+  });
+
+  dibujarTodo();
+
+})();
+</script>
+
+</body>
+</html>
